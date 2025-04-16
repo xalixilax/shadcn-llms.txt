@@ -1,0 +1,1 @@
+# shadcn-llms.txt
