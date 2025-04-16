@@ -1,1 +1,1 @@
-# shadcn-llms.txt
+# shadcn/ui llms.txt
