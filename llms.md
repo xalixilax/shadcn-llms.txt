@@ -2632,4 +2632,398 @@ export function TooltipDemo() {
     - Define the tooltip's content within `<TooltipContent>`.
 - The tooltip appears on hover or focus of the `TooltipTrigger`.
 
+### Carousel
+A carousel component with support for autoplay, indicators, and previous/next buttons. Built using Embla Carousel.
+`pnpm dlx shadcn@latest add carousel`
+`pnpm install embla-carousel-react`
+[Carousel docs](https://ui.shadcn.com/docs/components/carousel)
+
+#### Variants
+There are no specific variants for the carousel itself, but behavior is customized via props (`opts`, `orientation`, `plugins`).
+
+#### Syntax
+```tsx
+"use client" // Required for plugins like Autoplay
+
+import * as React from "react"
+import Autoplay from "embla-carousel-autoplay" // Example plugin
+
+import { Card, CardContent } from "@/components/ui/card" // Example item content
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+  // Optional: CarouselApi type for advanced control
+} from "@/components/ui/carousel"
+
+export function CarouselDemo() {
+  // Example using Autoplay plugin
+  const plugin = React.useRef(
+    Autoplay({ delay: 2000, stopOnInteraction: true })
+  )
+
+  return (
+    <Carousel
+      plugins={[plugin.current]} // Pass plugins array
+      className="w-full max-w-xs" // Example sizing
+      onMouseEnter={plugin.current.stop}
+      onMouseLeave={plugin.current.reset}
+      // Example options:
+      // opts={{
+      //   align: "start",
+      //   loop: true,
+      // }}
+    >
+      <CarouselContent>
+        {Array.from({ length: 5 }).map((_, index) => (
+          <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3"> {/* Example sizing per item */}
+            <div className="p-1">
+              <Card>
+                <CardContent className="flex aspect-square items-center justify-center p-6">
+                  <span className="text-4xl font-semibold">{index + 1}</span>
+                </CardContent>
+              </Card>
+            </div>
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+      <CarouselPrevious />
+      <CarouselNext />
+      {/* Optional: Add indicators if needed */}
+    </Carousel>
+  )
+}
 ```
+
+#### Rules
+- Requires installation of `embla-carousel-react`.
+- Structure: `Carousel` > `CarouselContent` > `CarouselItem`.
+- `CarouselPrevious` and `CarouselNext` provide navigation controls. They should be placed as direct children of `Carousel` (siblings to `CarouselContent`).
+- Configuration options are passed via the `opts` prop (refer to Embla Carousel documentation for available options like `loop`, `align`, `startIndex`, etc.).
+- Plugins (like `Autoplay`) are installed separately and passed via the `plugins` prop. Using plugins often requires `"use client"`.
+- The `orientation` prop (`"horizontal"` or `"vertical"`) controls the scroll direction.
+- Item sizing (e.g., showing multiple items at once) is controlled using CSS classes (like `basis-1/2`) on `CarouselItem`.
+
+---
+
+### Drawer
+A drawer component built on top of Vaul. Extends the Dialog component to display content that complements the main content of the screen, typically sliding in from the bottom on mobile and appearing as a dialog on desktop.
+`pnpm dlx shadcn@latest add drawer`
+[Drawer docs](https://ui.shadcn.com/docs/components/drawer)
+
+#### Variants
+No specific variants, but behavior differs based on viewport size (drawer on mobile, dialog on desktop) by default.
+
+#### Syntax
+```tsx
+import * as React from "react"
+
+import { Button } from "@/components/ui/button"
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer"
+// Example content components (like Slider) might be needed
+import { Slider } from "@/components/ui/slider"
+
+export function DrawerDemo() {
+  const [goal, setGoal] = React.useState(350) // Example state
+
+  function onClick(adjustment: number) {
+    setGoal(Math.max(200, Math.min(400, goal + adjustment)))
+  }
+
+  return (
+    <Drawer>
+      <DrawerTrigger asChild>
+        <Button variant="outline">Open Drawer</Button>
+      </DrawerTrigger>
+      <DrawerContent>
+        <div className="mx-auto w-full max-w-sm"> {/* Center content for dialog view */}
+          <DrawerHeader>
+            <DrawerTitle>Move Goal</DrawerTitle>
+            <DrawerDescription>Set your daily activity goal.</DrawerDescription>
+          </DrawerHeader>
+          <div className="p-4 pb-0">
+            {/* Example Content */}
+            <div className="flex items-center justify-center space-x-2">
+                {/* +/- Buttons example */}
+                <Button variant="outline" size="icon" onClick={() => onClick(-10)}>-</Button>
+                 <div className="flex-1 text-center">
+                    <div className="text-7xl font-bold tracking-tighter">
+                    {goal}
+                    </div>
+                    <div className="text-[0.70rem] uppercase text-muted-foreground">
+                    Calories/day
+                    </div>
+                </div>
+                <Button variant="outline" size="icon" onClick={() => onClick(10)}>+</Button>
+            </div>
+            <div className="mt-3 h-[120px]">
+               {/* Example Slider usage */}
+               <Slider
+                 defaultValue={[goal]}
+                 max={400}
+                 min={200}
+                 step={10}
+                 onValueChange={(value) => setGoal(value[0])}
+                 className="[&>[role=slider]]:h-4 [&>[role=slider]]:w-4" // Example style override
+                />
+            </div>
+          </div>
+          <DrawerFooter>
+            <Button onClick={() => console.log('Submit goal:', goal)}>Submit</Button>
+            <DrawerClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DrawerClose>
+          </DrawerFooter>
+        </div>
+      </DrawerContent>
+    </Drawer>
+  )
+}```
+
+#### Rules
+- Built on top of the `vaul` library, which handles the responsive behavior (drawer/dialog).
+- Structure is similar to `Dialog` and `Sheet`: `DrawerTrigger`, `DrawerContent`, `DrawerHeader`, `DrawerTitle`, `DrawerDescription`, `DrawerFooter`, `DrawerClose`.
+- Content inside `DrawerContent` should often be wrapped in a container with `mx-auto` and `max-w-sm` (or similar) to constrain width nicely when displayed as a dialog on larger screens.
+- Requires `"use client"` if managing state for interactive elements within the drawer.
+
+---
+
+### Pagination
+A component for navigating between pages of content.
+`pnpm dlx shadcn@latest add pagination button` (Implicitly uses Button styles)
+[Pagination docs](https://ui.shadcn.com/docs/components/pagination)
+
+#### Variants
+There are no variants for the pagination component itself.
+
+#### Syntax
+```tsx
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
+
+export function PaginationDemo() {
+  // NOTE: This is a presentational component.
+  // State management (current page, total pages, click handlers)
+  // needs to be implemented in the parent component.
+
+  return (
+    <Pagination>
+      <PaginationContent>
+        <PaginationItem>
+          <PaginationPrevious href="#" /> {/* Replace href with actual logic */}
+        </PaginationItem>
+        <PaginationItem>
+          <PaginationLink href="#">1</PaginationLink>
+        </PaginationItem>
+        <PaginationItem>
+          <PaginationLink href="#" isActive> {/* Indicate current page */}
+            2
+          </PaginationLink>
+        </PaginationItem>
+        <PaginationItem>
+          <PaginationLink href="#">3</PaginationLink>
+        </PaginationItem>
+        <PaginationItem>
+          <PaginationEllipsis /> {/* Represents omitted pages */}
+        </PaginationItem>
+        <PaginationItem>
+          <PaginationNext href="#" /> {/* Replace href with actual logic */}
+        </PaginationItem>
+      </PaginationContent>
+    </Pagination>
+  )
+}
+```
+
+#### Rules
+- This component primarily provides the structure and styling for pagination controls.
+- You need to implement the logic for handling page changes, determining the total number of pages, disabling Previous/Next buttons on boundaries, and rendering the correct page numbers and ellipses based on the current page and total pages.
+- `PaginationLink` is used for individual page numbers. Add the `isActive` prop to highlight the current page.
+- `PaginationPrevious` and `PaginationNext` are specific components for the navigation arrows.
+- `PaginationEllipsis` indicates a gap in the page numbers.
+- The `href` prop on the link/button components should ideally be replaced with `onClick` handlers or integrated with your routing solution to manage page state.
+
+---
+
+### Input OTP (One-Time Password)
+A component for inputting one-time passwords, typically used for multi-factor authentication.
+`pnpm dlx shadcn@latest add input-otp`
+[Input OTP docs](https://ui.shadcn.com/docs/components/input-otp)
+
+#### Variants
+There are no variants for the component itself, but appearance can be customized (e.g., number of slots).
+
+#### Syntax
+```tsx
+"use client" // Required for state management
+
+import * as React from "react"
+
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@/components/ui/input-otp"
+import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp" // Example pattern
+
+export function InputOTPDemo() {
+  const [value, setValue] = React.useState("")
+
+  return (
+    <div className="space-y-2">
+        {/* Basic 6-digit OTP */}
+        <InputOTP
+            maxLength={6}
+            value={value}
+            onChange={(value) => setValue(value)}
+            // pattern={REGEXP_ONLY_DIGITS_AND_CHARS} // Optional: Enforce pattern
+        >
+            <InputOTPGroup>
+                <InputOTPSlot index={0} />
+                <InputOTPSlot index={1} />
+                <InputOTPSlot index={2} />
+            </InputOTPGroup>
+            <InputOTPSeparator /> {/* Optional separator */}
+            <InputOTPGroup>
+                <InputOTPSlot index={3} />
+                <InputOTPSlot index={4} />
+                <InputOTPSlot index={5} />
+            </InputOTPGroup>
+        </InputOTP>
+        <div className="text-center text-sm">
+            {value === "" ? (
+            <>Enter your one-time password.</>
+            ) : (
+            <>You entered: {value}</>
+            )}
+        </div>
+
+        {/* Example: Controlled with pattern */}
+         {/* <InputOTP
+            maxLength={6}
+            pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
+            value={value}
+            onChange={(value) => setValue(value)}
+          >
+            <InputOTPGroup>...</InputOTPGroup>
+          </InputOTP> */}
+    </div>
+  )
+}
+```
+
+#### Rules
+- Requires `"use client"` for state management (`value`, `onChange`).
+- Structure: `InputOTP` > `InputOTPGroup` > `InputOTPSlot`.
+- `maxLength` prop on `InputOTP` determines the total number of characters allowed.
+- `InputOTPSlot` represents each individual character input box. The `index` prop (0-based) is crucial for linking the slots.
+- `InputOTPGroup` wraps logical groups of slots.
+- `InputOTPSeparator` can be placed between `InputOTPGroup`s for visual separation (e.g., after 3 digits).
+- Use the `value` prop and `onChange` callback to control the component's state.
+- The optional `pattern` prop (using constants like `REGEXP_ONLY_DIGITS_AND_CHARS` from the underlying `input-otp` library) can enforce specific input formats (e.g., digits only).
+
+---
+
+### Breadcrumb
+Displays the path to the current resource, allowing navigation back through the hierarchy.
+`pnpm dlx shadcn@latest add breadcrumb`
+[Breadcrumb docs](https://ui.shadcn.com/docs/components/breadcrumb)
+
+#### Variants
+There are no variants for the component itself.
+
+#### Syntax
+```tsx
+import Link from "next/link" // Example usage with Next.js Link
+
+import {
+  Breadcrumb,
+  BreadcrumbEllipsis,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage, // Use for the current page
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+import {
+  DropdownMenu, // Example for ellipsis dropdown
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu" // Example for ellipsis dropdown
+import { SlashIcon } from "@radix-ui/react-icons" // Example Icon
+
+export function BreadcrumbDemo() {
+  return (
+    <Breadcrumb>
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink asChild>
+             <Link href="/">Home</Link>
+          </BreadcrumbLink>
+          {/* Or use <BreadcrumbLink href="/">Home</BreadcrumbLink> for simple links */}
+        </BreadcrumbItem>
+        <BreadcrumbSeparator /> {/* Default is Slash icon */}
+        {/* Example using custom separator */}
+        {/* <BreadcrumbSeparator>
+            <SlashIcon />
+        </BreadcrumbSeparator> */}
+
+        {/* Example with Ellipsis Dropdown */}
+        <BreadcrumbItem>
+            <DropdownMenu>
+                <DropdownMenuTrigger className="flex items-center gap-1">
+                    <BreadcrumbEllipsis className="h-4 w-4" />
+                    <span className="sr-only">Toggle menu</span>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                    <DropdownMenuItem>Documentation</DropdownMenuItem>
+                    <DropdownMenuItem>Themes</DropdownMenuItem>
+                    <DropdownMenuItem>GitHub</DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+
+        <BreadcrumbItem>
+          <BreadcrumbLink href="/components">Components</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          {/* Use BreadcrumbPage for the current, non-linked page */}
+          <BreadcrumbPage>Breadcrumb</BreadcrumbPage>
+        </BreadcrumbItem>
+      </BreadcrumbList>
+    </Breadcrumb>
+  )
+}
+```
+
+#### Rules
+- Structure: `Breadcrumb` > `BreadcrumbList` > `BreadcrumbItem`.
+- Inside `BreadcrumbItem`, use:
+    - `BreadcrumbLink`: For navigable parts of the path. Use `asChild` when wrapping a framework link component (like Next.js `Link`).
+    - `BreadcrumbPage`: For the current page in the hierarchy (typically not a link).
+- Place `BreadcrumbSeparator` between `BreadcrumbItem`s. It renders a slash `/` by default but can contain custom icons or characters.
+- `BreadcrumbEllipsis` can be used (often within a `DropdownMenuTrigger` as shown in the example) to represent omitted intermediate levels in a long path. Requires installing and using `dropdown-menu`.
+- Typically requires integration with a routing library to provide correct `href` values.
+
